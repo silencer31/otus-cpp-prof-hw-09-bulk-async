@@ -10,8 +10,10 @@ class Interpreter {
 public:
 	Interpreter() = delete;
 	
-	explicit Interpreter(std::shared_ptr<Collector>  cltr_ptr)
-		: collector_ptr(cltr_ptr) {
+	explicit Interpreter(const std::size_t bulk_size)
+	{
+		collector_ptr = std::make_shared<Collector>(bulk_size);
+
 		// —оздаем Console и передаем ему указатель на коллекцию с данными.
 		console_ptr = std::make_shared<Console>(collector_ptr);
 		
@@ -41,7 +43,7 @@ public:
 	void handle_eof();
 
 private:
-	const std::shared_ptr<Collector>  collector_ptr; // ”казатель на объект с коллекцией с данными.
+	std::shared_ptr<Collector>  collector_ptr;	 // ”казатель на объект с коллекцией с данными.
 	
 	std::shared_ptr<FileLogger> file_logger_ptr; // ”казатель на объект дл€ вывода коллекции данных в файл.
 	std::shared_ptr<Console>	console_ptr;	 // ”казатель на объект дл€ вывода коллекции данных в консоль.

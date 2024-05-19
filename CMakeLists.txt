@@ -6,14 +6,16 @@ set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 project(async VERSION ${PROJECT_VERSION})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+
 find_package(Threads REQUIRED)
 
 configure_file(version.h.in version.h)
 
 #Main target
 add_library(async SHARED
-	"bulk_async.cpp"
-	"bulk_async.h")
+	"async.cpp"
+	"async.h"
+)
 
 add_executable(async_cli main.cpp)
 

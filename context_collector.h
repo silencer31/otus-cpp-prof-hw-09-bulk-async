@@ -1,5 +1,7 @@
 #pragma once
 
+#include "interpreter.h"
+
 #include <cctype>
 #include <iostream>
 #include <mutex>
@@ -8,81 +10,89 @@
 // Идентификатор контекста
 using handle_t = std::uint64_t;
 
-using ContextMap = std::map<handle_t, std::shared_ptr<Context>>;
+// Тип для коллекции контекстов
+using contexts_collection = std::map<handle_t, std::unique_ptr<Interpreter>>;
+
+using contexts_iter = std::map<handle_t, std::unique_ptr<Interpreter>>::const_iterator;
 
 class ContextCollector
 {
 public:
     ContextCollector() = default;
 
-    handle_t add_context(const std::size_t aBulkSize, std::ostream& aOutStream) {
-        if (!m_OutPrintMutex)
-            return 0;
-
-        std::lock_guard<std::mutex> locker(collection_mutex);
+    handle_t add_context(const std::size_t bulk_size) {
+        std::lock_guard<std::mutex> lg_mtx(collection_mutex);
         
         ++context_counter;
-        
-        context_collection.insert({ context_counter,
-            std::make_unique<CommandDispatcher>(aBulkSize, aOutStream, 2, m_OutPrintMutex) });
-        
+
+        contexts.insert({ context_counter , std::make_unique<Interpreter>(bulk_size)});
+
         return context_counter;
     }
 
-    void handle_message(const handle_t aHandle, const char* aData, const std::size_t aSize) {
-        decltype(context_collection)::const_iterator iter;
-        {
-            std::lock_guard<std::mutex> locker(collection_mutex);
-            iter = context_collection.find(aHandle);
-        }
-
-        if (iter == context_collection.end()) {
-            if (m_OutPrintMutex && m_OutPrintMutex->try_lock()) {
-                std::cout << "Cant find elem with id = " << aHandle << std::endl;
-                m_OutPrintMutex->unlock();
-            }
-            return;
-        }
-        if (iter->second) {
-            iter->second->ProcessCmdLine(std::string(aData, aData + aSize));
-        }
-    }
-
-    void stop_handling(const handle_t aHandle) {
-        decltype(context_collection)::const_iterator iter;
+    void handle_message(const handle_t context_id, const char* data, const std::size_t data_len) {
+        contexts_iter iter;
         
         {
-            std::lock_guard<std::mutex> locker(collection_mutex);
-            iter = context_collection.find(aHandle);
+            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
+            iter = contexts.find(context_id);
         }
 
-        if (iter == context_collection.end()) {
-            if (m_OutPrintMutex && m_OutPrintMutex->try_lock()) {
-                std::cout << "Cant find elem with id = " << aHandle << std::endl;
-                m_OutPrintMutex->unlock();
+        // Проверка, что передано корректное значение.
+        if (iter == contexts.end()) {
+            if (console_mutex->try_lock()) {
+                std::cout << "Incorrect context id has been provided ! Value: " << context_id << std::endl;
+                console_mutex->unlock();
             }
+
             return;
         }
 
-        if (iter->second) {
-            iter->second->Flush();
-        }
+        if (!iter->second) { return; }
+
+        iter->second->handle_input(std::string(data, data + data_len));
+    }
+
+    void stop_handling(const handle_t context_id) {
+        contexts_iter iter;
 
         {
-            std::lock_guard<std::mutex> locker(collection_mutex);
-            context_collection.erase(iter);
+            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
+            iter = contexts.find(context_id);
+        }
+
+        // Проверка, что передано корректное значение.
+        if (iter == contexts.end()) {
+            if (console_mutex->try_lock()) {
+                std::cout << "Incorrect context id has been provided ! Value: " << context_id << std::endl;
+                console_mutex->unlock();
+            }
+
+            return;
+        }
+
+        if (!iter->second) { return; }
+
+        // Завершаем текущий блок команд.
+        iter->second->handle_eof();
+
+        // Удаляем контекст из коллекции.
+        {
+            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
+            contexts.erase(context_id);
         }
     }
-
-    bool Exist(const handle_t aHandle) {
-        std::lock_guard<std::mutex> locker(collection_mutex);
-        return  context_collection.find(aHandle) != context_collection.end();
-    }
+    
 private:
-    ContextMap context_collection;
+    // Коллекция контекстов.
+    contexts_collection contexts;
     
+    // Мьютекс для добавления в коллекцию.
     std::mutex collection_mutex;
-    std::shared_ptr<std::mutex> m_OutPrintMutex = std::make_shared<std::mutex>();
     
-    handle_t context_counter = 0;
+    // Мьютекс для вывода на экран.
+    std::shared_ptr<std::mutex> console_mutex = std::make_shared<std::mutex>();
+    
+    // Счетчик контекстов.
+    handle_t context_counter{ 0 };
 };

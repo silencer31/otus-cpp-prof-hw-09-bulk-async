@@ -33,9 +33,11 @@ class Collector : public Observable {
 public:
 	Collector() = delete;
 
-	explicit Collector( size_t size) :
-		collection_max_size(size), storage_type(StorageType::UNKNOWN_T),
-		open_brackets_number(0), close_brackets_number(0)
+	explicit Collector(const std::size_t bulk_size)
+		: collection_max_size(bulk_size)
+		, storage_type(StorageType::UNKNOWN_T)
+		, open_brackets_number(0)
+		, close_brackets_number(0)
 	{
 		commands_collection.reserve(collection_max_size);
 	}
@@ -84,12 +86,14 @@ public:
 	}
 
 private:
-	size_t collection_max_size;
-	std::vector<std::string> commands_collection;
-
+	const std::size_t collection_max_size;
+	
 	StorageType storage_type;
-	int open_brackets_number;
-	int close_brackets_number;
+	
+	int open_brackets_number{ 0 };
+	int close_brackets_number{ 0 };
+
+	std::vector<std::string> commands_collection;
 
 	file_time first_command_time;
 };

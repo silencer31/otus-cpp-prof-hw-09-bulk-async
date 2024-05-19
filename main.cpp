@@ -1,20 +1,45 @@
-
+#include "async.h"
 
 int main(int args_number, char const** args)
 {
    
-    if (args_number != 2) {
-        std::cerr << "The number of commands hasn't been passed!" << std::endl;
-        return 1;
-    }
+    std::size_t bulk = 5;
 
-    int commands_number = std::atoi(args[1]);
+    auto h4 = async::connect(bulk);
+    auto h5 = async::connect(bulk);
+    
+    async::receive(h4, "a", 1);
+    async::receive(h4, "b", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "c", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "d", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h5, "e", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "f", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "g", 1);
+    async::receive(h5, "\n", 1);
+    async::receive(h4, "{", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "h", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "i", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "j", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "k", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h5, "}", 1);
+    async::receive(h4, "\n", 1);
+    async::receive(h4, "l", 1);
+    async::receive(h5, "m", 1);
+    async::receive(h4, "\n", 1);
 
-    if (commands_number == 0) {
-        std::cerr << "The number of commands must be more then 0!" << std::endl;
-        return 1;
-    }
-      
+    async::disconnect(h4);
+    async::disconnect(h5);
         
     return 0;
 }
