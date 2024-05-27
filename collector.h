@@ -35,9 +35,6 @@ public:
 
 	explicit Collector(const std::size_t bulk_size)
 		: collection_max_size(bulk_size)
-		, storage_type(StorageType::UNKNOWN_T)
-		, open_brackets_number(0)
-		, close_brackets_number(0)
 	{
 		commands_collection.reserve(collection_max_size);
 	}
@@ -88,7 +85,7 @@ public:
 private:
 	const std::size_t collection_max_size;
 	
-	StorageType storage_type;
+	StorageType storage_type{ StorageType::UNKNOWN_T };
 	
 	int open_brackets_number{ 0 };
 	int close_brackets_number{ 0 };

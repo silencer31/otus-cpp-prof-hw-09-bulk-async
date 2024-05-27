@@ -90,9 +90,6 @@ private:
     // ћьютекс дл€ добавлени€ в коллекцию.
     std::mutex collection_mutex;
     
-    // ћьютекс дл€ вывода на экран.
-    std::shared_ptr<std::mutex> console_mutex = std::make_shared<std::mutex>();
-    
     // —четчик контекстов.
     handle_t context_counter{ 0 };
 };
