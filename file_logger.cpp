@@ -8,19 +8,21 @@
 */
 void FileLogger::write_commands_to_file(const command_iterator& c_begin, const command_iterator& c_end, const file_time& ftime)
 {
-	auto seconds = std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count();
+	const uint64_t seconds = std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count();
 	
-	std::stringstream filename;
-	filename << "bulk" << seconds << ".log";
+	std::stringstream message;
+	//filename << "bulk" << seconds << ".log";
 
-	std::ofstream file(filename.str(), std::ofstream::out);
+	//std::ofstream file(filename.str(), std::ofstream::out);
 	
 	for (command_iterator comm_iter = c_begin; comm_iter != c_end; ++comm_iter) {
-		file << (*comm_iter);
+		message << (*comm_iter);
 		if (comm_iter + 1 != c_end) {
-			file << ", ";
+			message << ", ";
 		}
 	}
+
+	file_writer_ptr->add_data(handle_id, seconds, message);
 }
 
 void FileLogger::update()

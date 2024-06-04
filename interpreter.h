@@ -10,15 +10,16 @@ class Interpreter {
 public:
 	Interpreter() = delete;
 	
-	explicit Interpreter(const std::size_t bulk_size)
+	explicit Interpreter(const std::size_t bulk_size, const std::uint32_t handle_id,
+		const std::shared_ptr<IOutput>& io_ptr, const std::shared_ptr<IWriter>& iw_ptr)
 	{
 		collector_ptr = std::make_shared<Collector>(bulk_size);
 
 		// Создаем Console и передаем ему указатель на коллекцию с данными.
-		console_ptr = std::make_shared<Console>(collector_ptr);
+		console_ptr = std::make_shared<Console>(collector_ptr, io_ptr);
 		
 		// Создаем File Logger и передаем ему указатель на коллекцию с данными.
-		file_logger_ptr = std::make_shared<FileLogger>(collector_ptr);
+		file_logger_ptr = std::make_shared<FileLogger>(collector_ptr, iw_ptr, handle_id);
 
 		// У коллекции с данными указываем Console как обозреватель.
 		collector_ptr->attach(console_ptr);

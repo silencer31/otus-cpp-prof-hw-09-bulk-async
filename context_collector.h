@@ -4,11 +4,14 @@
 
 #include <cctype>
 #include <iostream>
+#include <sstream>
 #include <mutex>
 #include <map>
 
+#define FILE_THREADS_NUMBER 2
+
 // Идентификатор контекста
-using handle_t = std::uint64_t;
+using handle_t = std::uint32_t;
 
 // Тип для коллекции контекстов
 using contexts_collection = std::map<handle_t, std::unique_ptr<Interpreter>>;
@@ -18,14 +21,19 @@ using contexts_iter = std::map<handle_t, std::unique_ptr<Interpreter>>::const_it
 class ContextCollector
 {
 public:
-    ContextCollector() = default;
+    ContextCollector()
+        : io_ptr(std::make_shared<ConsoleWriter>())
+        , iw_ptr(std::make_shared<FileWriter>(FILE_THREADS_NUMBER))
+    {}
 
     handle_t add_context(const std::size_t bulk_size) {
         std::lock_guard<std::mutex> lg_mtx(collection_mutex);
         
         ++context_counter;
 
-        contexts.insert({ context_counter , std::make_unique<Interpreter>(bulk_size)});
+        contexts.insert(
+            { context_counter, std::make_unique<Interpreter>(bulk_size, context_counter, io_ptr, iw_ptr)}
+        );
 
         return context_counter;
     }
@@ -40,10 +48,10 @@ public:
 
         // Проверка, что передано корректное значение.
         if (iter == contexts.end()) {
-            if (console_mutex->try_lock()) {
-                std::cout << "Incorrect context id has been provided ! Value: " << context_id << std::endl;
-                console_mutex->unlock();
-            }
+            std::stringstream message;
+            message << "Unable to handle message. Incorrect context id has been provided ! Value: " << context_id;
+
+            io_ptr->add_data(message.str());
 
             return;
         }
@@ -63,10 +71,10 @@ public:
 
         // Проверка, что передано корректное значение.
         if (iter == contexts.end()) {
-            if (console_mutex->try_lock()) {
-                std::cout << "Incorrect context id has been provided ! Value: " << context_id << std::endl;
-                console_mutex->unlock();
-            }
+            std::stringstream message;
+            message << "Unable to stop handling. Incorrect context id has been provided ! Value: " << context_id;
+
+            io_ptr->add_data(message.str());
 
             return;
         }
@@ -92,4 +100,10 @@ private:
     
     // Счетчик контекстов.
     handle_t context_counter{ 0 };
+
+    // Объект для вывода в консоль в отдельном потоке.
+    const std::shared_ptr<IOutput> io_ptr;
+
+    // Объект для вывода в файлы через пул потоков.
+    const std::shared_ptr<IWriter> iw_ptr;
 };
