@@ -1,8 +1,8 @@
 #pragma once
 
-#include "concurrent/concurrent_queue.h"
-#include "Interfaces/interface_writer.h" 
-#include "threads_joiner.h"
+#include "../concurrent/concurrent_queue.h"
+#include "../Interfaces/interface_writer.h" 
+#include "../threads_joiner.h"
 
 #include <atomic>
 #include <boost/format.hpp> 

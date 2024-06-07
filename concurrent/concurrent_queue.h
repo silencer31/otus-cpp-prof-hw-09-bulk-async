@@ -20,7 +20,7 @@ public:
 
     void push(const std::uint32_t& hid, const std::uint64_t& time, const T& data) {
         std::lock_guard<std::mutex> guard(queue_mtx);
-        collection.push_back( std::make_tuple(hid, time, data));
+        collection.push( std::make_tuple(hid, time, data));
     }
 
     hid_time_data front() {
@@ -30,7 +30,7 @@ public:
 
     void pop() {
         std::lock_guard<std::mutex> guard(queue_mtx);
-        collection.pop_front();
+        collection.pop();
     }
 
     std::size_t size() const {

@@ -22,7 +22,7 @@ void FileLogger::write_commands_to_file(const command_iterator& c_begin, const c
 		}
 	}
 
-	file_writer_ptr->add_data(handle_id, seconds, message);
+	file_writer_ptr->add_data(handle_id, seconds, message.str());
 }
 
 void FileLogger::update()

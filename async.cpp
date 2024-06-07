@@ -1,8 +1,6 @@
 #include "async.h"
 
 namespace async {
-    ContextCollector context_collector;
-
     handle_t connect(std::size_t bulk) {
         return context_collector.add_context(bulk);
     }

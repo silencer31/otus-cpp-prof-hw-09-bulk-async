@@ -6,23 +6,23 @@ void ConsoleWriter::worker_thread()
 {
 	while (!done) {
         // Пытаемся получить доступ к коллекции с данными.
-        std::unique_lock<std::mutex> ulock(data_mutex);
+        std::unique_lock<std::mutex> data_lock(data_mutex);
 
         // Отпускаем мьютекс и ожидаем, пока в очереди появятся данные.
-        cond_var.wait(ulock, [this]()->bool { return !data_to_write.empty() || done; });
+        cond_var.wait(data_lock, [this]()->bool { return !data_to_output.empty() || done; });
 
         // Мьютекс снова захвачен.
 
-        if (data_to_write.empty()) { continue; }
+        if (data_to_output.empty()) { continue; }
 
         // Берём первый доступный элемент в коллекции с данными.
-        const auto element = std::move(data_to_write.front());
+        const auto element = std::move(data_to_output.front());
 
         // Удаляем из очереди принятый в обработку элемент.
-        data_to_write.pop();
+        data_to_output.pop();
 
         // Освобождаем доступ к коллекции.
-        lock.unlock();
+        data_lock.unlock();
 
         std::cout << element << std::endl;
 	}

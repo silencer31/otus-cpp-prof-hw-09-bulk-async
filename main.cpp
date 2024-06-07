@@ -2,7 +2,7 @@
 
 int main(int args_number, char const** args)
 {
-   
+   /*
     std::size_t bulk = 5;
 
     auto h4 = async::connect(bulk);
@@ -40,6 +40,6 @@ int main(int args_number, char const** args)
 
     async::disconnect(h4);
     async::disconnect(h5);
-        
+        */
     return 0;
 }

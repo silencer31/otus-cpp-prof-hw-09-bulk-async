@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interfaces/interface_output.h"
+#include "../Interfaces/interface_output.h"
 
 #include <queue>
 #include <atomic>

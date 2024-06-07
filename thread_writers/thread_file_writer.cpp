@@ -8,10 +8,10 @@ void FileWriter::worker_thread(const uint32_t thread_id)
 {
     while (!done) {
         // Пытаемся получить доступ к коллекции с данными.
-        std::unique_lock<std::mutex> ulock(data_mutex);
+        std::unique_lock<std::mutex> data_lock(data_mutex);
 
         // Отпускаем мьютекс и ожидаем, пока в очереди появятся данные.
-        cond_var.wait(ulock, [this]()->bool { return !data_to_write.empty() || done; });
+        cond_var.wait(data_lock, [this]()->bool { return !data_to_write.empty() || done; });
 
         // Мьютекс снова захвачен.
 
@@ -24,7 +24,7 @@ void FileWriter::worker_thread(const uint32_t thread_id)
         data_to_write.pop();
 
         // Освобождаем доступ к коллекции.
-        lock.unlock();
+        data_lock.unlock();
 
         // Записываем данные в файл.
         const auto hid  = std::get<0>(element);
@@ -32,7 +32,7 @@ void FileWriter::worker_thread(const uint32_t thread_id)
 
         std::string filename = boost::str(boost::format("bulk_%1%_id[%2%]_%3%.log") % time % thread_id % hid);
     
-        std::ofstream file(filename.str(), std::ofstream::out);
+        std::ofstream file(filename, std::ofstream::out);
 
         if (file.is_open()) {
             file << std::get<2>(element);
