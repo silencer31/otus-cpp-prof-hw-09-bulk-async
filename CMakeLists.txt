@@ -23,7 +23,7 @@ set(ASYNC_LIB_SRC
     "async.cpp"
     "async.h"
     "concurrent/concurrent_queue.h"
-    "interfaces/interface_writer.h"
+    "Interfaces/interface_writer.h"
     "thread_writers/thread_console_writer.cpp"
     "thread_writers/thread_console_writer.h"
     "thread_writers/thread_file_writer.cpp"
