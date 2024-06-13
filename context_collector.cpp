@@ -1,6 +1,6 @@
 #include "context_collector.h"
 
-
+// Обработка введённой строки.
 handle_t ContextCollector::add_context(const std::size_t bulk_size)
 {
     std::lock_guard<std::mutex> lg_mtx(collection_mutex);
@@ -14,7 +14,7 @@ handle_t ContextCollector::add_context(const std::size_t bulk_size)
     return context_counter;
 }
 
-
+// Обработка введённой строки.
 void ContextCollector::handle_message(const handle_t context_id, const char* data, const std::size_t data_len)
 {
     contexts_iter iter;
