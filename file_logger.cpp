@@ -3,9 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-/**
-* Запись коллекции в файл с указанием временной метки.
-*/
+// Запись коллекции в файл с указанием временной метки.
 void FileLogger::write_commands_to_file(const command_iterator& c_begin, const command_iterator& c_end, const file_time& ftime)
 {
 	const uint64_t seconds = std::chrono::duration_cast<std::chrono::seconds>(ftime.time_since_epoch()).count();
@@ -22,9 +20,11 @@ void FileLogger::write_commands_to_file(const command_iterator& c_begin, const c
 		}
 	}
 
+	// Отправляем данные в потокобезопасную очередь.
 	file_writer_ptr->add_data(handle_id, seconds, message.str());
 }
 
+// Реакция на появление данных в коллекторе.
 void FileLogger::update()
 {
 	write_commands_to_file(collector_ptr->get_iter_begin(), collector_ptr->get_iter_end(), collector_ptr->get_file_time());

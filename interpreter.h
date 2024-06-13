@@ -11,7 +11,7 @@ public:
 	Interpreter() = delete;
 	
 	explicit Interpreter(const std::size_t bulk_size, const std::uint32_t handle_id,
-		const std::shared_ptr<IOutput>& io_ptr, const std::shared_ptr<IWriter>& iw_ptr)
+		const std::shared_ptr<IWriter>& io_ptr, const std::shared_ptr<IWriter>& iw_ptr)
 	{
 		collector_ptr = std::make_shared<Collector>(bulk_size);
 
@@ -35,6 +35,7 @@ public:
 
 	/**
 	* Обработка введённой строки.
+	* @param command введённая строка
 	*/
 	void handle_input(const std::string& command);
 

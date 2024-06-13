@@ -10,7 +10,7 @@ class Console : public Observer {
 public:
 	Console() = delete;
 
-	explicit Console(const std::shared_ptr<Collector>& cltr_ptr, const std::shared_ptr<IOutput>& io_ptr)
+	explicit Console(const std::shared_ptr<Collector>& cltr_ptr, const std::shared_ptr<IWriter>& io_ptr)
 		: collector_ptr(cltr_ptr)
 		, console_writer_ptr(io_ptr)
 	{}
@@ -18,7 +18,9 @@ public:
 	~Console() = default;
 
 	/**
-	* ¬ывод коллекции команд в консоль.
+	* ¬ывод данных в консоль.
+	* @param c_begin итератор на начало данных
+	* @param c_end итератор на окончание данных
 	*/
 	void output_to_console(const command_iterator& c_begin, const command_iterator& c_end);
 
@@ -29,5 +31,5 @@ public:
 
 private:
 	const std::shared_ptr<Collector> collector_ptr;
-	const std::shared_ptr<IOutput>	 console_writer_ptr;
+	const std::shared_ptr<IWriter>	 console_writer_ptr;
 };

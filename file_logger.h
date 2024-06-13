@@ -10,7 +10,8 @@ class FileLogger : public Observer {
 public:
 	FileLogger() = delete;
 
-	explicit FileLogger(const std::shared_ptr<Collector>& cltr_ptr, const std::shared_ptr<IWriter>& iw_ptr,
+	explicit FileLogger(const std::shared_ptr<Collector>& cltr_ptr,
+		const std::shared_ptr<IWriter>& iw_ptr,
 		const std::uint32_t hid)
 	: collector_ptr(cltr_ptr)
 	, file_writer_ptr(iw_ptr)
@@ -19,6 +20,12 @@ public:
 	
 	~FileLogger() = default;
 
+	/**
+	* Обработка введённой строки.
+	* @param c_begin итератор на начало данных
+	* @param c_end итератор на окончание данных
+	* @param ftime время
+	*/
 	void write_commands_to_file(const command_iterator& c_begin, const command_iterator& c_end, const file_time& ftime);
 
 	/**

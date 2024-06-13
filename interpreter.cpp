@@ -1,5 +1,6 @@
 #include "interpreter.h"
 
+// Обработка введённой строки.
 void Interpreter::handle_input(const std::string& command)
 {
 	if (command.empty()) {
@@ -20,6 +21,7 @@ void Interpreter::handle_input(const std::string& command)
 	collector_ptr->handle_input(InputType::COMMAND, command);
 }
 
+// Обработка полученного EOF.
 void Interpreter::handle_eof()
 {
 	collector_ptr->handle_input(InputType::END_INPUT, "");

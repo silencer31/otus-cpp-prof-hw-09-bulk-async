@@ -18,78 +18,57 @@ using contexts_collection = std::map<handle_t, std::unique_ptr<Interpreter>>;
 
 using contexts_iter = std::map<handle_t, std::unique_ptr<Interpreter>>::const_iterator;
 
+/**
+* @brief Класс для сбора и управления контекстами обработки данных.
+*/
 class ContextCollector
 {
 public:
     ContextCollector()
-        : io_ptr(std::make_shared<ConsoleWriter>())
-        , iw_ptr(std::make_shared<FileWriter>(FILE_THREADS_NUMBER))
+        : console_mutex_ptr( std::make_shared<std::mutex>() )
+        , io_ptr(std::make_shared<ConsoleWriter>(console_mutex_ptr))
+        , iw_ptr(std::make_shared<FileWriter>(FILE_THREADS_NUMBER, console_mutex_ptr))
     {}
 
-    handle_t add_context(const std::size_t bulk_size) {
-        std::lock_guard<std::mutex> lg_mtx(collection_mutex);
+    ~ContextCollector() {
+        // Ждём обработки всех отправленных данных.
+        while (!iw_ptr->empty() || !io_ptr->empty()) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+
+        // Останавливаем потоки.
+        io_ptr->stop_process();
+        iw_ptr->stop_process();
         
-        ++context_counter;
 
-        contexts.insert(
-            { context_counter, std::make_unique<Interpreter>(bulk_size, context_counter, io_ptr, iw_ptr)}
-        );
+        // Ждём корректного завершения всех потоков.
+        while (iw_ptr->active() || io_ptr->active()) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
 
-        return context_counter;
+        std::cout << "\nContext Collector - Destructor" << std::endl;
     }
 
-    void handle_message(const handle_t context_id, const char* data, const std::size_t data_len) {
-        contexts_iter iter;
-        
-        {
-            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
-            iter = contexts.find(context_id);
-        }
+    /**
+    * Добавление нового контекста.
+    * @param bulk_size размер ограничения для порции данных
+    * @return номер контекста
+    */
+    handle_t add_context(const std::size_t bulk_size);
 
-        // Проверка, что передано корректное значение.
-        if (iter == contexts.end()) {
-            std::stringstream message;
-            message << "Unable to handle message. Incorrect context id has been provided ! Value: " << context_id;
+    /**
+    * Обработка введённой строки.
+    * @param context_id номер контекста
+    * @param data данные
+    * @param data_len длина данных
+    */
+    void handle_message(const handle_t context_id, const char* data, const std::size_t data_len);
 
-            io_ptr->add_data(message.str());
-
-            return;
-        }
-
-        if (!iter->second) { return; }
-
-        iter->second->handle_input(std::string(data, data + data_len));
-    }
-
-    void stop_handling(const handle_t context_id) {
-        contexts_iter iter;
-
-        {
-            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
-            iter = contexts.find(context_id);
-        }
-
-        // Проверка, что передано корректное значение.
-        if (iter == contexts.end()) {
-            std::stringstream message;
-            message << "Unable to stop handling. Incorrect context id has been provided ! Value: " << context_id;
-
-            io_ptr->add_data(message.str());
-
-            return;
-        }
-
-        if (!iter->second) { return; }
-
-        // Завершаем текущий блок команд.
-        iter->second->handle_eof();
-
-        // Удаляем контекст из коллекции.
-        {
-            std::lock_guard<std::mutex> lg_mtx(collection_mutex);
-            contexts.erase(context_id);
-        }
-    }
+    /**
+    * Прекращение процесса обработки для указанного контекста.
+    * @param context_id номер контекста
+    */
+    void stop_handling(const handle_t context_id);
     
 private:
     // Коллекция контекстов.
@@ -97,12 +76,15 @@ private:
     
     // Мьютекс для синхронизации доступа к коллекци.
     std::mutex collection_mutex;
-    
+ 
     // Счетчик контекстов.
     handle_t context_counter{ 0 };
 
+    // Мьютекс для синхронизации вывода на консоль из разных потоков.
+    std::shared_ptr<std::mutex> console_mutex_ptr;
+
     // Объект для вывода в консоль в отдельном потоке.
-    const std::shared_ptr<IOutput> io_ptr;
+    const std::shared_ptr<IWriter> io_ptr;
 
     // Объект для вывода в файлы через пул потоков.
     const std::shared_ptr<IWriter> iw_ptr;

@@ -1,15 +1,46 @@
 #pragma once
 
 #include <string>
+#include <atomic>
 
 /**
-* @brief  ласс - интерфейс дл€ классов многопоточного вывода в файлы.
+* @brief  ласс - интерфейс дл€ классов многопоточной обработки данных.
 */
 class IWriter
 {
+protected:
+	std::atomic<bool> done{ false }; // Ѕольше нет данных дл€ обработки.
+	std::atomic<uint16_t> active_threads_number{ 0 }; //  ол-во активных потоков.
 
 public:
 	virtual ~IWriter() = default;
 
-	virtual void add_data(const std::uint32_t& hid, const std::uint64_t& time, const std::string& data) = 0;
+	/**
+	* ƒобавление данных в потокобезопасную очередь.
+	* @param data данные.
+	*/
+	virtual void add_data(const std::string& ) {}
+
+	/**
+	* ƒобавление данных в потокобезопасную очередь.
+	* @param hid номер контекста.
+	* @param time врем€.
+	* @param data данные.
+	*/
+	virtual void add_data(const std::uint32_t& , const std::uint64_t& , const std::string& ) {}
+
+	/**
+	* @return €вл€етс€ ли очередь с данными пустой.
+	*/
+	virtual bool empty() = 0;
+
+	/**
+	* @return есть ли хот€ бы один активный поток.
+	*/
+	virtual bool active() = 0;
+
+	/**
+	* —ообщить потокам о прекращении обработки данных.
+	*/
+	virtual void stop_process() = 0;
 };

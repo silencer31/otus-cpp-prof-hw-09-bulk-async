@@ -46,6 +46,8 @@ public:
 	
 	/**
 	* Обработка ввода.
+	* @param input_type Тип введённых данных
+	* @param command данные
 	*/
 	void handle_input(InputType input_type, const std::string& command);
 
