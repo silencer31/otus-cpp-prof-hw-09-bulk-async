@@ -21,9 +21,8 @@ configure_file(version.h.in version.h)
 
 set(ASYNC_LIB_SRC
     "async.cpp"
-	"async.h"
+    "async.h"
     "concurrent/concurrent_queue.h"
-    "interfaces/interface_output.h"
     "interfaces/interface_writer.h"
     "thread_writers/thread_console_writer.cpp"
     "thread_writers/thread_console_writer.h"
