@@ -1,0 +1,18 @@
+<map id="collector.cpp" name="collector.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="131,5,225,31"/>
+<area shape="rect" id="Node000002" href="$collector_8h.html" title=" " alt="" coords="138,79,218,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,31,181,63,175,63,175,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,153,63,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="155,108,73,148,71,143,152,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="87,153,141,178"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="169,107,137,143,133,139,165,103"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="199,226,266,252"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="183,104,206,177,221,211,216,213,201,179,178,106"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="216,153,276,178"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="191,103,226,140,222,143,187,107"/>
+<area shape="rect" id="Node000007" href="$observer_8h.html" title=" " alt="" coords="300,153,427,178"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="210,103,319,144,317,149,208,108"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="342,181,269,221,267,216,340,177"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="344,226,383,252"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="366,179,366,211,361,211,361,179"/>
+</map>
